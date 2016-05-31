@@ -16,6 +16,12 @@ Animals json
    nome Text
    idade Int
    deriving Show
+   
+Users json
+   nome Text
+   login Text
+   senha Text
+   deriving Show
 |]
 
 mkYesod "Pagina" [parseRoutes|
@@ -44,6 +50,7 @@ formAnimal :: Form Animals
 formAnimal = renderDivs $ Animals <$>
            areq textField "Nome: " Nothing <*>
            areq intField "Idade: " Nothing
+           
 
 getAnimalR :: Handler Html
 getAnimalR = do
