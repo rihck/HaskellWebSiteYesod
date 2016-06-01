@@ -37,6 +37,29 @@ mkYesod "Pagina" [parseRoutes|
 /logout LogoutR GET
 |]
 
+instance Yesod Pagina where
+    authRoute _ = Just LoginR
+    
+    isAuthorized LoginR _ = return Authorized
+    isAuthorized ErroR _ = return Authorized
+    isAuthorized HomeR _ = return Authorized
+    isAuthorized UsuarioR _ = return Authorized
+    isAuthorized AdminR _ = isAdmin
+    isAuthorized _ _ = isUser
+
+isUser = do
+    mu <- lookupSession "_ID"
+    return $ case mu of
+        Nothing -> AuthenticationRequired
+        Just _ -> Authorized
+    
+isAdmin = do
+    mu <- lookupSession "_ID"
+    return $ case mu of
+        Nothing -> AuthenticationRequired
+        Just "admin" -> Authorized 
+        Just _ -> Unauthorized "Acesso Restrito para Administrador"
+
 instance YesodPersist Pagina where
    type YesodPersistBackend Pagina = SqlBackend
    runDB f = do
