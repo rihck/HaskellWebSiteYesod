@@ -5,11 +5,10 @@
 import Yesod
 import Database.Persist.Postgresql
 import Data.Text
+import Text.Lucius
 import Control.Monad.Logger (runStdoutLoggingT)
 
 data Pagina = Pagina{connPool :: ConnectionPool}
-
-instance Yesod Pagina
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Animals json
@@ -84,7 +83,7 @@ formUser :: Form Users
 formUser = renderDivs $ Users <$>
            areq textField "Nome: " Nothing <*>
            areq textField "Login: " Nothing <*>
-           areq passwordField "Passwor: " Nothing
+           areq passwordField "Password: " Nothing
 
 formLogin :: Form (Text,Text)
 formLogin = renderDivs $ (,) <$>
@@ -104,6 +103,13 @@ getAnimalR = do
                      ^{widget}
                      <input type="submit" value="Cadastrar Animal">
            |]
+           
+getPerfilR :: UsersId -> Handler Html
+getPerfilR uid = do
+      user <- runDB $ get404 uid
+      defaultLayout $ do
+          toWidget $ $(luciusFile "templates/perfil.lucius")
+          $(whamletFile "templates/perfil.hamlet")
 
 getUsuarioR :: Handler Html
 getUsuarioR = do
@@ -119,7 +125,7 @@ postAnimalR = do
            ((result, _), _) <- runFormPost formAnimal
            case result of 
                FormSuccess anim -> (runDB $ insert anim) >>= \piid -> redirect (ChecarAnimalR piid)
-               _ -> redirect 
+               _ -> redirect ErroR
                
 postUsuarioR :: Handler Html
 postUsuarioR = do
@@ -149,7 +155,7 @@ postLoginR :: Handler Html
 postLoginR = do
            ((result, _), _) <- runFormPost formLogin
            case result of 
-               FormSuccess ("admin","admin") -> setSession "_ID" "admin" >> redirect AdminR
+               FormSuccess ("admin","eitapleuga") -> setSession "_ID" "admin" >> redirect AdminR
                FormSuccess (login,senha) -> do 
                    user <- runDB $ selectFirst [UsersLogin ==. login, UsersSenha ==. senha] []
                    case user of
