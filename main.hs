@@ -84,7 +84,8 @@ formUser :: Form Users
 formUser = renderDivs $ Users <$>
            areq textField "Nome: " Nothing <*>
            areq textField "Login: " Nothing <*>
-           areq passwordField "Password: " Nothing        
+           areq passwordField "Passwor: " Nothing
+           
 
 getAnimalR :: Handler Html
 getAnimalR = do
@@ -164,6 +165,13 @@ getErroR :: Handler Html
 getErroR = defaultLayout [whamlet|
     <h1>Falha no Cadastro !</h1>
 |]
+
+getLogoutR :: Handler Html
+getLogoutR = do
+     deleteSession "_ID"
+     defaultLayout [whamlet| 
+         <h1> <b>Logout</b> efetuado com sucesso! </h1>
+     |]
 
 connStr = "dbname=d4673as0stmsm7 host=ec2-54-221-225-242.compute-1.amazonaws.com user=nzjfptmglfomng password=fyYms4A9T8gkP4_Go8GswcfIiE port=5432"
 
