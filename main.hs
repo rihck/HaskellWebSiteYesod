@@ -84,8 +84,7 @@ formUser :: Form Users
 formUser = renderDivs $ Users <$>
            areq textField "Nome: " Nothing <*>
            areq textField "Login: " Nothing <*>
-           areq passwordField "Passwor: " Nothing
-           
+           areq passwordField "Password: " Nothing        
 
 getAnimalR :: Handler Html
 getAnimalR = do
@@ -140,6 +139,17 @@ getLoginR = do
                      ^{widget}
                      <input type="submit" value="Login">
            |]
+           
+postLoginR :: Handler Html
+postLoginR = do
+           ((result, _), _) <- runFormPost formLogin
+           case result of 
+               FormSuccess ("admin","admin") -> setSession "_ID" "admin" >> redirect AdminR
+               FormSuccess (login,senha) -> do 
+                   user <- runDB $ selectFirst [UsersLogin ==. login, UsersSenha ==. senha] []
+                   case user of
+                       Nothing -> redirect LoginR
+                       Just (Entity pid u) -> setSession "_ID" (pack $ show $ fromSqlKey pid) >> redirect (PerfilR pid)
 
 getChecarAnimalR :: AnimalsId -> Handler Html
 getChecarAnimalR pid = do
@@ -152,7 +162,7 @@ getChecarAnimalR pid = do
 
 getErroR :: Handler Html
 getErroR = defaultLayout [whamlet|
-    Falha no Cadastro !
+    <h1>Falha no Cadastro !</h1>
 |]
 
 connStr = "dbname=d4673as0stmsm7 host=ec2-54-221-225-242.compute-1.amazonaws.com user=nzjfptmglfomng password=fyYms4A9T8gkP4_Go8GswcfIiE port=5432"
