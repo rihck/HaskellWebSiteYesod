@@ -132,6 +132,15 @@ getAdminR = defaultLayout [whamlet|
     <b><h1><font size="11"> Bem vindo ao Painel Administrativo</font></h1></b>
 |]
 
+getLoginR :: Handler Html
+getLoginR = do
+           (widget, enctype) <- generateFormPost formLogin
+           defaultLayout [whamlet|
+                 <form method=post enctype=#{enctype} action=@{LoginR}>
+                     ^{widget}
+                     <input type="submit" value="Login">
+           |]
+
 getChecarAnimalR :: AnimalsId -> Handler Html
 getChecarAnimalR pid = do
     animal <- runDB $ get404 pid
