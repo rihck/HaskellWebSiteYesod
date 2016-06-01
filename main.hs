@@ -127,6 +127,11 @@ postUsuarioR = do
 getHomeR :: Handler Html
 getHomeR = defaultLayout [whamlet|Hello World!|]
 
+getAdminR :: Handler Html
+getAdminR = defaultLayout [whamlet|
+    <b><h1><font size="11"> Bem vindo ao Painel Administrativo</font></h1></b>
+|]
+
 getChecarAnimalR :: AnimalsId -> Handler Html
 getChecarAnimalR pid = do
     animal <- runDB $ get404 pid
