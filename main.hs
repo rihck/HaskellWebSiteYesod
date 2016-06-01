@@ -115,6 +115,13 @@ postAnimalR = do
            ((result, _), _) <- runFormPost formAnimal
            case result of 
                FormSuccess anim -> (runDB $ insert anim) >>= \piid -> redirect (ChecarAnimalR piid)
+               _ -> redirect 
+               
+postUsuarioR :: Handler Html
+postUsuarioR = do
+           ((result, _), _) <- runFormPost formUser
+           case result of 
+               FormSuccess user -> (runDB $ insert user) >>= \piid -> redirect (PerfilR piid)
                _ -> redirect ErroR
                
 getHomeR :: Handler Html
