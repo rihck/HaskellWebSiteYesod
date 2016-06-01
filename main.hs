@@ -85,7 +85,11 @@ formUser = renderDivs $ Users <$>
            areq textField "Nome: " Nothing <*>
            areq textField "Login: " Nothing <*>
            areq passwordField "Passwor: " Nothing
-           
+
+formLogin :: Form (Text,Text)
+formLogin = renderDivs $ (,) <$>
+           areq textField "Login: " Nothing <*>
+           areq passwordField "Senha: " Nothing           
 
 getAnimalR :: Handler Html
 getAnimalR = do
