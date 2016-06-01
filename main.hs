@@ -80,6 +80,12 @@ formAnimal = renderDivs $ Animals <$>
            areq textField "Nome: " Nothing <*>
            areq intField "Idade: " Nothing
            
+formUser :: Form Users
+formUser = renderDivs $ Users <$>
+           areq textField "Nome: " Nothing <*>
+           areq textField "Login: " Nothing <*>
+           areq passwordField "Passwor: " Nothing
+           
 
 getAnimalR :: Handler Html
 getAnimalR = do
@@ -95,13 +101,22 @@ getAnimalR = do
                      <input type="submit" value="Cadastrar Animal">
            |]
 
+getUsuarioR :: Handler Html
+getUsuarioR = do
+           (widget, enctype) <- generateFormPost formUser
+           defaultLayout [whamlet|
+                 <form method=post enctype=#{enctype} action=@{UsuarioR}>
+                     ^{widget}
+                     <input type="submit" value="Enviar">
+           |]
+
 postAnimalR :: Handler Html
 postAnimalR = do
            ((result, _), _) <- runFormPost formAnimal
            case result of 
                FormSuccess anim -> (runDB $ insert anim) >>= \piid -> redirect (ChecarAnimalR piid)
                _ -> redirect ErroR
-           
+               
 getHomeR :: Handler Html
 getHomeR = defaultLayout [whamlet|Hello World!|]
 
