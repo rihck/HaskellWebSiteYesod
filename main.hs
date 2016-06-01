@@ -29,6 +29,12 @@ mkYesod "Pagina" [parseRoutes|
 /animal/cadastro AnimalR GET POST
 /animal/checar/#AnimalsId ChecarAnimalR GET
 /erro ErroR GET
+
+/login LoginR GET POST
+/usuario UsuarioR GET POST
+/perfil/#UsersId PerfilR GET
+/admin AdminR GET
+/logout LogoutR GET
 |]
 
 instance YesodPersist Pagina where
