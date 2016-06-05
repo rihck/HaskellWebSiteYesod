@@ -7,8 +7,11 @@ import Database.Persist.Postgresql
 import Data.Text
 import Text.Lucius
 import Control.Monad.Logger (runStdoutLoggingT)
+import Yesod.Static
 
-data Pagina = Pagina{connPool :: ConnectionPool}
+data Pagina = Pagina{connPool :: ConnectionPool,
+                     getStatic :: Static 
+                    }
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Animals 
@@ -28,7 +31,7 @@ Raca
    apelido Text sqltype=varchar(10)
    deriving Show
 |]
-
+staticFiles "static"
 mkYesod "Pagina" [parseRoutes|
 / HomeR GET
 /animal/cadastro AnimalR GET POST
@@ -43,6 +46,7 @@ mkYesod "Pagina" [parseRoutes|
 
 /animal/raca RacaR GET POST
 /animal/listar ListarAnimalR GET
+/static StaticR Static getStatic
 |]
 
 instance Yesod Pagina where
@@ -198,10 +202,17 @@ postUsuarioR = do
                FormSuccess user -> (runDB $ insert user) >>= \piid -> redirect (PerfilR piid)
                _ -> redirect ErroR
                
+
 getHomeR :: Handler Html
 getHomeR = defaultLayout $ do
-             addStylesheetRemote "http://remote-bootstrap-path.css"
-             [whamlet|Hello World!|]
+           addStylesheet $ StaticR home_css
+           [whamlet|
+               <img src=@{StaticR logo1_png}>
+               <label> Bem-vindo ao sistema!
+               <ul>
+                  <li> <a href=@{AnimalR}> Cadastro de peca </a> </li>
+                  <li> <a href=@{ListarAnimalR}> Cadastro de fornecedor </a> </li>
+           |]
 
 addStyle :: Widget
 addStyle = addStylesheetRemote "http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css"
@@ -259,4 +270,5 @@ connStr = "dbname=d4673as0stmsm7 host=ec2-54-221-225-242.compute-1.amazonaws.com
 main::IO()
 main = runStdoutLoggingT $ withPostgresqlPool connStr 10 $ \pool -> liftIO $ do 
        runSqlPersistMPool (runMigration migrateAll) pool
-       warp 8080 (Pagina pool)
+       t@(Static settings) <- static "static"
+       warp 8080 (Pagina pool t)
