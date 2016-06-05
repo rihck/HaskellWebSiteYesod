@@ -11,15 +11,20 @@ import Control.Monad.Logger (runStdoutLoggingT)
 data Pagina = Pagina{connPool :: ConnectionPool}
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-Animals json
+Animals 
    nome Text
    idade Int
    deriving Show
    
-Users json
+Users 
    nome Text
    login Text
    senha Text
+   deriving Show
+   
+Raca
+   nome Text
+   apelido Text sqltype=varchar(10)
    deriving Show
 |]
 
@@ -72,6 +77,14 @@ instance RenderMessage Pagina FormMessage where
     renderMessage _ _ = defaultFormMessage
 ------------------------
 
+formRaca :: Form Raca
+formRaca = renderDivs $ Raca <$>
+            areq textField "Nome Completo Raça" Nothing <*>
+            areq textField FieldSettings{fsId=Just "hident2",
+                           fsLabel="Nome Resumido/Apelido Raça",
+                           fsTooltip= Nothing,
+                           fsName= Nothing,
+                           fsAttrs=[("maxlength","10")]} Nothing
 -- Sempre que preciso um form, sera ncessario
 -- funcoes deste tipo
 formAnimal :: Form Animals
@@ -99,7 +112,7 @@ getAnimalR = do
                    color:blue;
            |]
            [whamlet|
-                 <form method=post enctype=#{enctype} action=@{AnimalR}>
+                 <form .form-horizontal method=post enctype=#{enctype} action=@{AnimalR}>
                      ^{widget}
                      <input type="submit" value="Cadastrar Animal">
            |]
@@ -114,7 +127,9 @@ getPerfilR uid = do
 getUsuarioR :: Handler Html
 getUsuarioR = do
            (widget, enctype) <- generateFormPost formUser
-           defaultLayout [whamlet|
+           defaultLayout  $ do
+             addStylesheetRemote "http://remote-bootstrap-path.css" 
+             [whamlet|
                  <form method=post enctype=#{enctype} action=@{UsuarioR}>
                      ^{widget}
                      <input type="submit" value="Enviar">
@@ -135,7 +150,12 @@ postUsuarioR = do
                _ -> redirect ErroR
                
 getHomeR :: Handler Html
-getHomeR = defaultLayout [whamlet|Hello World!|]
+getHomeR = defaultLayout $ do
+             addStylesheetRemote "http://remote-bootstrap-path.css"
+             [whamlet|Hello World!|]
+
+addStyle :: Widget
+addStyle = addStylesheetRemote "http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css"
 
 getAdminR :: Handler Html
 getAdminR = defaultLayout [whamlet|
@@ -165,7 +185,7 @@ postLoginR = do
 getChecarAnimalR :: AnimalsId -> Handler Html
 getChecarAnimalR pid = do
     animal <- runDB $ get404 pid
-    defaultLayout [whamlet|
+    defaultLayout  [whamlet|
     <font size="10">Perfil do Pet</font><br>
         <p><b> Nome do Pet:</b>  #{animalsNome animal}  
         <p><b> Idade do Pet:</b> #{show $ animalsIdade animal} Anos
