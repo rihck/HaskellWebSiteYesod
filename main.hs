@@ -14,6 +14,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Animals 
    nome Text
    idade Int
+   racaid RacaId
    deriving Show
    
 Users 
@@ -87,12 +88,18 @@ formRaca = renderDivs $ Raca <$>
                            fsTooltip= Nothing,
                            fsName= Nothing,
                            fsAttrs=[("maxlength","10")]} Nothing
+                           
 -- Sempre que preciso um form, sera ncessario
 -- funcoes deste tipo
 formAnimal :: Form Animals
 formAnimal = renderDivs $ Animals <$>
            areq textField "Nome: " Nothing <*>
-           areq intField "Idade: " Nothing
+           areq intField "Idade: " Nothing <*>
+           areq (selectField racas) "Raca" Nothing
+           
+racas = do
+       entidades <- runDB $ selectList [] [Asc RacaNome] 
+       optionsPairs $ fmap (\ent -> (racaApelido $ entityVal ent, entityKey ent)) entidades
            
 formUser :: Form Users
 formUser = renderDivs $ Users <$>
@@ -222,6 +229,7 @@ getErroR :: Handler Html
 getErroR = defaultLayout [whamlet|
     <h1>Falha no Cadastro !</h1>
 |]
+
 
 getLogoutR :: Handler Html
 getLogoutR = do
