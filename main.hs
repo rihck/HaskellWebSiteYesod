@@ -35,17 +35,18 @@ staticFiles "static"
 mkYesod "Pagina" [parseRoutes|
 / HomeR GET
 /animal/cadastro AnimalR GET POST
-/animal/checar/#AnimalsId ChecarAnimalR GET
+/animal/checar/#AnimalsId ChecarAnimalR GET POST
 /erro ErroR GET
 
 /login LoginR GET POST
 /usuario UsuarioR GET POST
-/perfil/#UsersId PerfilR GET
+/perfil/#UsersId PerfilR GET POST
 /admin AdminR GET
 /logout LogoutR GET
 
 /animal/raca RacaR GET POST
 /animal/listar ListarAnimalR GET
+/usuario/listar ListarUsuarioR GET
 /static StaticR Static getStatic
 |]
 
@@ -57,6 +58,7 @@ instance Yesod Pagina where
     isAuthorized HomeR _ = return Authorized
     isAuthorized UsuarioR _ = return Authorized
     isAuthorized AdminR _ = isAdmin
+    isAuthorized ListarUsuarioR _ = isAdmin
     isAuthorized _ _ = isUser
 
 isUser = do
@@ -160,7 +162,7 @@ getUsuarioR = do
              [whamlet|
                  <form method=post enctype=#{enctype} action=@{UsuarioR}>
                      ^{widget}
-                     <input type="submit" value="Enviar">
+                     <input type="submit" value="Cadastrar">
            |]
            
 getListarAnimalR :: Handler Html
@@ -176,6 +178,20 @@ getListarAnimalR = do
                 form  { display:inline; }
                 input { background-color: #ecc; border:0;}
              |]
+
+getListarUsuarioR :: Handler Html
+getListarUsuarioR = do
+             listaUsr <- runDB $ selectList [] [Asc UsersNome]
+             defaultLayout $ [whamlet|
+                 <h1> Usuarios Cadastrados no Sistema:
+                 $forall Entity pid users <- listaUsr
+                     <a href=@{PerfilR pid}> #{usersNome users} 
+                     <form method=post action=@{PerfilR pid}> 
+                         <input type="submit" value="Deletar User"><br>
+             |] >> toWidget [lucius|
+                form  { display:inline; }
+                input { background-color: #ecc; border:0;}
+             |]
            
 postRacaR :: Handler Html
 postRacaR = do
@@ -187,6 +203,16 @@ postRacaR = do
                            <h1> A inserção da Raça #{racaNome raca} foi concluida com sucesso. 
                        |]
                     _ -> redirect RacaR
+                    
+postChecarAnimalR :: AnimalsId -> Handler Html
+postChecarAnimalR pid = do
+     runDB $ delete pid
+     redirect ListarAnimalR
+     
+postPerfilR :: UsersId -> Handler Html
+postPerfilR pid = do
+     runDB $ delete pid
+     redirect ListarUsuarioR
 
 postAnimalR :: Handler Html
 postAnimalR = do
@@ -202,16 +228,16 @@ postUsuarioR = do
                FormSuccess user -> (runDB $ insert user) >>= \piid -> redirect (PerfilR piid)
                _ -> redirect ErroR
                
-
+--Home do Site -> Adicionar CSS e Rotas
 getHomeR :: Handler Html
 getHomeR = defaultLayout $ do
            addStylesheet $ StaticR home_css
            [whamlet|
                <img src=@{StaticR logo1_png}>
-               <label> Bem-vindo ao sistema!
+               <label> Benvindo ao PetNet!
                <ul>
-                  <li> <a href=@{AnimalR}> Cadastro de peca </a> </li>
-                  <li> <a href=@{ListarAnimalR}> Cadastro de fornecedor </a> </li>
+                  <li> <a href=@{AnimalR}> Cadastro de Animal </a> </li>
+                  <li> <a href=@{ListarAnimalR}> Listar Animais </a> </li>
            |]
 
 addStyle :: Widget
@@ -220,6 +246,8 @@ addStyle = addStylesheetRemote "http://netdna.bootstrapcdn.com/twitter-bootstrap
 getAdminR :: Handler Html
 getAdminR = defaultLayout [whamlet|
     <b><h1><font size="11"> Bem vindo ao Painel Administrativo</font></h1></b>
+    <ul>
+                  <li> <a href=@{ListarUsuarioR}> Gerenciar Usuarios do Sistema </a> </li>
 |]
 
 getLoginR :: Handler Html
