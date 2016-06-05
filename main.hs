@@ -39,6 +39,8 @@ mkYesod "Pagina" [parseRoutes|
 /perfil/#UsersId PerfilR GET
 /admin AdminR GET
 /logout LogoutR GET
+
+/animal/raca RacaR GET POST
 |]
 
 instance Yesod Pagina where
@@ -101,15 +103,29 @@ formUser = renderDivs $ Users <$>
 formLogin :: Form (Text,Text)
 formLogin = renderDivs $ (,) <$>
            areq textField "Login: " Nothing <*>
-           areq passwordField "Senha: " Nothing           
+           areq passwordField "Senha: " Nothing 
+           
+getRacaR :: Handler Html
+getRacaR = do
+           (widget, enctype) <- generateFormPost formRaca
+           defaultLayout $ do 
+           toWidget [cassius|
+              label
+                  color:red;
+           |]
+           [whamlet|
+                 <form .form-horizontal method=post enctype=#{enctype} action=@{RacaR}>
+                     ^{widget}
+                     <input type="submit" value="Cadastrar Raca">
+           |]
 
 getAnimalR :: Handler Html
 getAnimalR = do
            (widget, enctype) <- generateFormPost formAnimal
            defaultLayout $ do 
            toWidget [cassius|
-               label
-                   color:blue;
+              label
+                  color:blue;
            |]
            [whamlet|
                  <form .form-horizontal method=post enctype=#{enctype} action=@{AnimalR}>
@@ -134,6 +150,17 @@ getUsuarioR = do
                      ^{widget}
                      <input type="submit" value="Enviar">
            |]
+           
+postRacaR :: Handler Html
+postRacaR = do
+                ((result, _), _) <- runFormPost formRaca
+                case result of
+                    FormSuccess raca -> do
+                       runDB $ insert raca
+                       defaultLayout [whamlet|
+                           <h1> A inserção da Raça #{racaNome raca} foi concluida com sucesso. 
+                       |]
+                    _ -> redirect RacaR
 
 postAnimalR :: Handler Html
 postAnimalR = do
@@ -202,6 +229,7 @@ getLogoutR = do
      defaultLayout [whamlet| 
          <h1> <b>Logout</b> efetuado com sucesso! </h1>
      |]
+
 
 connStr = "dbname=d4673as0stmsm7 host=ec2-54-221-225-242.compute-1.amazonaws.com user=nzjfptmglfomng password=fyYms4A9T8gkP4_Go8GswcfIiE port=5432"
 
