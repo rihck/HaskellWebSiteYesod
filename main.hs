@@ -42,6 +42,7 @@ mkYesod "Pagina" [parseRoutes|
 /logout LogoutR GET
 
 /animal/raca RacaR GET POST
+/animal/listar ListarAnimalR GET
 |]
 
 instance Yesod Pagina where
@@ -157,6 +158,20 @@ getUsuarioR = do
                      ^{widget}
                      <input type="submit" value="Enviar">
            |]
+           
+getListarAnimalR :: Handler Html
+getListarAnimalR = do
+             listaAnm <- runDB $ selectList [] [Asc AnimalsNome]
+             defaultLayout $ [whamlet|
+                 <h1> Animais cadastrados:
+                 $forall Entity pid animals <- listaAnm
+                     <a href=@{ChecarAnimalR pid}> #{animalsNome animals} 
+                     <form method=post action=@{ChecarAnimalR pid}> 
+                         <input type="submit" value="Deletar Animal"><br>
+             |] >> toWidget [lucius|
+                form  { display:inline; }
+                input { background-color: #ecc; border:0;}
+             |]
            
 postRacaR :: Handler Html
 postRacaR = do
