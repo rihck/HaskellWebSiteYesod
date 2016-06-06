@@ -110,17 +110,25 @@ racas = do
            
 formUser :: Form Users
 formUser = renderDivs $ Users <$>
-           areq textField "Nome: " Nothing <*>
-           areq textField "Login: " Nothing <*>
+           areq textField FieldSettings{fsId=Just "hident1",
+                               fsLabel="Nome: ",
+                               fsTooltip= Nothing,
+                               fsName= Nothing,
+                               fsAttrs=[("class","form-control"),("placeholder","Nome"),("maxlength","50")]} Nothing <*>
+           areq textField FieldSettings{fsId=Just "hident2",
+                               fsLabel="Username: ",
+                               fsTooltip= Nothing,
+                               fsName= Nothing,
+                               fsAttrs=[("class","form-control"),("placeholder","Username"),("maxlength","50")]} Nothing <*>
            areq passwordField FieldSettings{fsId=Just "hident3",
                                fsLabel="Senha: ",
                                fsTooltip= Nothing,
                                fsName= Nothing,
-                               fsAttrs=[("class","form-control")]} Nothing
+                               fsAttrs=[("class","form-control"),("placeholder","Senha"),("maxlength","50")]} Nothing
 
 formLogin :: Form (Text,Text)
 formLogin = renderDivs $ (,) <$>
-           areq textField FieldSettings{fsId=Just "hident2",
+           areq textField FieldSettings{fsId=Just "hident1",
                                fsLabel="Username: ",
                                fsTooltip= Nothing,
                                fsName= Nothing,
@@ -169,13 +177,13 @@ getPerfilR uid = do
 getUsuarioR :: Handler Html
 getUsuarioR = do
            (widget, enctype) <- generateFormPost formUser
-           defaultLayout  $ do
-             addStylesheetRemote "http://remote-bootstrap-path.css" 
-             [whamlet|
-                 <form method=post enctype=#{enctype} action=@{UsuarioR}>
-                     ^{widget}
-                     <input type="submit" value="Cadastrar">
-           |]
+           defaultLayout $ do
+                addStylesheet $ StaticR css_components_css
+                addStylesheet $ StaticR css_background_css
+                addStylesheet $ StaticR css_bootstrap_min_css
+                addScript $ StaticR js_jquery_2_2_4_min_js
+                addScript $ StaticR js_bootstrap_js
+                toWidget $ $(whamletFile "templates/cadastrar.hamlet")
            
 getListarAnimalR :: Handler Html
 getListarAnimalR = do
@@ -300,9 +308,7 @@ getErroR = defaultLayout [whamlet|
 getLogoutR :: Handler Html
 getLogoutR = do
      deleteSession "_ID"
-     defaultLayout [whamlet| 
-         <h1> <b>Logout</b> efetuado com sucesso! </h1>
-     |]
+     redirect HomeR
 
 
 connStr = "dbname=d4673as0stmsm7 host=ec2-54-221-225-242.compute-1.amazonaws.com user=nzjfptmglfomng password=fyYms4A9T8gkP4_Go8GswcfIiE port=5432"
