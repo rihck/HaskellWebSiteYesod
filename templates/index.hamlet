@@ -1,0 +1,43 @@
+<div class="center" style="background-color:#fff;">
+    <div class="container">
+        <img src=@{StaticR img_logo1_png} class="img-responsive" style="width:100%;height:auto;">
+<div class="center" style="height:100px;width:100%;background-color:#e22;padding-top:25px;">
+    <ul class="lista-inline" >
+        <li class="md-col-6"> 
+            <a href=@{LoginR} class="btn btn-default btn-lg"> 
+                Login 
+        <li class="md-col-6" style="margin-left:30px;"> 
+            <a href=@{UsuarioR} class="btn btn-default btn-lg"> 
+                Cadastrar-se 
+<div style="width:100%;background-color:#e22;margin-top:200px;padding:50px 0;">
+    <div class="container" style="color:#fff;">
+        <h1 class="center">PET STOP
+        <div class="center" style="width:40px;">
+            <hr>
+        <p>A nossa loja tem como objetivo agradar nossos clientes disponibilizando sempre o melhor
+            e o mais ágil serviço. Vendemos aqui os melhores produtos e realizamos os melhores serviços
+            para o seu pet estar sempre de bem com a vida.
+        
+        <h1 class="center" style="margin-top:50px;">Quem somos?
+        <div class="center" style="width:40px;">
+            <hr>
+        <h3>Fernando Yukio Watanabe
+        <p>Estudante de Análise e Desenvolvimento de Sistemas na Fatec Rubens Lara do 6 ciclo.
+        <h3>Ricardo Pereira
+        <p>Estudante de Análise e Desenvolvimento de Sistemas na Fatec Rubens Lara do 5 ciclo.
+
+<div style="width:100%;background-color:#e22;margin-top:200px;padding:50px 0;">
+    <div class="container" style="color:#fff;">
+        <div class="col-md-6">
+            <h2 class="center" style="margin-top:50px;">PET STOP
+            <div class="center" style="width:40px;">
+                <hr>
+            <p>Todos os direitos NÃO reservados. Não possuimos qualquer direitos sobre a PET STOP sendo a reprodução
+                apenas como apresentação para avaliação da disciplina Eletiva II.
+        <div class="col-md-6">
+            <h2 class="center" style="margin-top:50px;">Contato
+            <div class="center" style="width:40px;">
+                <hr>
+            <p>Telefone: (99) 9999-9999
+            <p>Celular:  (99) 9999-9999
+            <p>E-mail:   email_ficticio@email.com

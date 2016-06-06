@@ -1,0 +1,12 @@
+.lista-inline{
+    list-style-type: none;
+}
+
+.lista-inline > li{
+    display: inline;
+}
+
+.center {
+    margin: 0 auto;
+    text-align: center;
+}

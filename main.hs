@@ -230,16 +230,14 @@ postUsuarioR = do
                
 --Home do Site -> Adicionar CSS e Rotas
 getHomeR :: Handler Html
-getHomeR = defaultLayout $ do
-           addStylesheet $ StaticR home_css
-           [whamlet|
-               <img src=@{StaticR logo1_png}>
-               <label> Benvindo ao PetNet!
-               <ul>
-                  <li> <a href=@{AnimalR}> Cadastro de Animal </a> </li>
-                  <li> <a href=@{ListarAnimalR}> Listar Animais </a> </li>
-           |]
-
+getHomeR =  defaultLayout $ do
+                addStylesheet $ StaticR css_components_css
+                addStylesheet $ StaticR css_background_css
+                addStylesheet $ StaticR css_bootstrap_min_css
+                addScript $ StaticR js_jquery_2_2_4_min_js
+                addScript $ StaticR js_bootstrap_js
+                toWidget $ $(whamletFile "templates/index.hamlet")
+           
 addStyle :: Widget
 addStyle = addStylesheetRemote "http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css"
 
@@ -247,7 +245,7 @@ getAdminR :: Handler Html
 getAdminR = defaultLayout [whamlet|
     <b><h1><font size="11"> Bem vindo ao Painel Administrativo</font></h1></b>
     <ul>
-                  <li> <a href=@{ListarUsuarioR}> Gerenciar Usuarios do Sistema </a> </li>
+        <li> <a href=@{ListarUsuarioR}> Gerenciar Usuarios do Sistema  
 |]
 
 getLoginR :: Handler Html
@@ -256,7 +254,7 @@ getLoginR = do
            defaultLayout [whamlet|
                  <form method=post enctype=#{enctype} action=@{LoginR}>
                      ^{widget}
-                     <input type="submit" value="Login">
+                     <input type="submit" value="Login">  &nbsp; &nbsp;
            |]
            
 postLoginR :: Handler Html
