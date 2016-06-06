@@ -112,12 +112,24 @@ formUser :: Form Users
 formUser = renderDivs $ Users <$>
            areq textField "Nome: " Nothing <*>
            areq textField "Login: " Nothing <*>
-           areq passwordField "Password: " Nothing
+           areq passwordField FieldSettings{fsId=Just "hident3",
+                               fsLabel="Senha: ",
+                               fsTooltip= Nothing,
+                               fsName= Nothing,
+                               fsAttrs=[("class","form-control")]} Nothing
 
 formLogin :: Form (Text,Text)
 formLogin = renderDivs $ (,) <$>
-           areq textField "Login: " Nothing <*>
-           areq passwordField "Senha: " Nothing 
+           areq textField FieldSettings{fsId=Just "hident2",
+                               fsLabel="Username: ",
+                               fsTooltip= Nothing,
+                               fsName= Nothing,
+                               fsAttrs=[("class","form-control"),("placeholder","Username"),("maxlength","50")]} Nothing <*>
+           areq passwordField FieldSettings{fsId=Just "hident2",
+                               fsLabel="Senha: ",
+                               fsTooltip= Nothing,
+                               fsName= Nothing,
+                               fsAttrs=[("class","form-control"),("placeholder","Senha"),("maxlength","50")]} Nothing 
            
 getRacaR :: Handler Html
 getRacaR = do
@@ -251,11 +263,13 @@ getAdminR = defaultLayout [whamlet|
 getLoginR :: Handler Html
 getLoginR = do
            (widget, enctype) <- generateFormPost formLogin
-           defaultLayout [whamlet|
-                 <form method=post enctype=#{enctype} action=@{LoginR}>
-                     ^{widget}
-                     <input type="submit" value="Login">  &nbsp; &nbsp;
-           |]
+           defaultLayout $ do
+                addStylesheet $ StaticR css_components_css
+                addStylesheet $ StaticR css_background_css
+                addStylesheet $ StaticR css_bootstrap_min_css
+                addScript $ StaticR js_jquery_2_2_4_min_js
+                addScript $ StaticR js_bootstrap_js
+                toWidget $ $(whamletFile "templates/login.hamlet")
            
 postLoginR :: Handler Html
 postLoginR = do
