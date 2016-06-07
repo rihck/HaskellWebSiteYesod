@@ -1,0 +1,68 @@
+<nav class="navbar navbar-inverse">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation
+        <span class="icon-bar">
+        <span class="icon-bar">
+        <span class="icon-bar">
+      
+      <a class="navbar-brand" href=@{InicioR}>
+        PET STOP
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            Meus Pets 
+              <span class="caret">
+          <ul class="dropdown-menu">
+            <li>
+              <a href=@{AnimalR}>
+                Cadastrar
+            <li role="separator" class="divider">
+            <li>
+              <a href=@{ListarAnimalR}>
+                Listar Pets
+      
+      <form class="navbar-form navbar-left" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Pesquisar">
+        
+        <button type="submit" class="btn btn-default">Pesquisar
+      
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            Usuario 
+              <span class="caret">
+          <ul class="dropdown-menu">
+            <li>
+              <a href="#">
+                Perfil
+            <li role="separator" class="divider">
+            <li>
+              <a href=@{LogoutR}>
+                Logout
+
+<div style="width:100%;background-color:#fff;margin-top:200px;padding:50px 0;height:500px;border:2px solid #ddd;">
+    <div class="container">
+        <h1>Bem vindo ao PET STOP!
+        <div class="center" style="width:40px;">
+                <hr>
+        <p style="font-size:2em;">O que deseja comprar hoje? Temos promoção de ração Pedigree!
+            
+<div style="width:100%;background-color:#e22;margin-top:200px;padding:50px 0;">
+    <div class="container" style="color:#fff;">
+        <div class="col-md-6">
+            <h2 class="center" style="margin-top:50px;">PET STOP
+            <div class="center" style="width:40px;">
+                <hr>
+            <p>Todos os direitos NÃO reservados. Não possuimos qualquer direitos sobre a PET STOP sendo a reprodução
+                apenas como apresentação para avaliação da disciplina Eletiva II.
+        <div class="col-md-6">
+            <h2 class="center" style="margin-top:50px;">Contato
+            <div class="center" style="width:40px;">
+                <hr>
+            <p>Telefone: (99) 9999-9999
+            <p>Celular:  (99) 9999-9999
+            <p>E-mail:   email_ficticio@email.com

@@ -15,19 +15,18 @@ data Pagina = Pagina{connPool :: ConnectionPool,
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Animals 
-   nome Text
+   nome Text sqltype=varchar(10)
    idade Int
+--   user UsersId
    racaid RacaId
    deriving Show
-   
 Users 
-   nome Text
-   login Text
-   senha Text
+   nome Text sqltype=varchar(50)
+   login Text sqltype=varchar(50)
+   senha Text sqltype=varchar(50)
    deriving Show
-   
 Raca
-   nome Text
+   nome Text sqltype=varchar(50)
    apelido Text sqltype=varchar(10)
    deriving Show
 |]
@@ -42,6 +41,7 @@ mkYesod "Pagina" [parseRoutes|
 /usuario UsuarioR GET POST
 /perfil/#UsersId PerfilR GET POST
 /admin AdminR GET
+/inicio InicioR GET
 /logout LogoutR GET
 
 /animal/raca RacaR GET POST
@@ -89,38 +89,54 @@ instance RenderMessage Pagina FormMessage where
 
 formRaca :: Form Raca
 formRaca = renderDivs $ Raca <$>
-            areq textField "Nome Completo Raça" Nothing <*>
-            areq textField FieldSettings{fsId=Just "hident2",
-                           fsLabel="Nome Resumido/Apelido Raça",
+            areq textField FieldSettings{fsId=Just "hident1",
+                           fsLabel="Nome: ",
                            fsTooltip= Nothing,
                            fsName= Nothing,
-                           fsAttrs=[("maxlength","10")]} Nothing
+                           fsAttrs=[("class","form-control"),("placeholder","Nome"),("maxlength","50")]} Nothing <*>
+            areq textField FieldSettings{fsId=Just "hident2",
+                           fsLabel="Apelido",
+                           fsTooltip= Nothing,
+                           fsName= Nothing,
+                           fsAttrs=[("class","form-control"),("placeholder","Apelido"),("maxlength","10")]} Nothing
                            
 -- Sempre que preciso um form, sera ncessario
 -- funcoes deste tipo
 formAnimal :: Form Animals
 formAnimal = renderDivs $ Animals <$>
-           areq textField "Nome: " Nothing <*>
-           areq intField "Idade: " Nothing <*>
-           areq (selectField racas) "Raca" Nothing
-           
+            areq textField FieldSettings{fsId=Just "hident1",
+                           fsLabel="Nome: ",
+                           fsTooltip= Nothing,
+                           fsName= Nothing,
+                           fsAttrs=[("class","form-control"),("placeholder","Nome"),("maxlength","50")]} Nothing <*>
+            areq intField FieldSettings{fsId=Just "hident2",
+                           fsLabel="Idade: ",
+                           fsTooltip= Nothing,
+                           fsName= Nothing,
+                           fsAttrs=[("class","form-control"),("placeholder","Idade"),("max","999")]} Nothing <*>
+            areq (selectField racas) FieldSettings{fsId=Just "hident3",
+                           fsLabel="Raça: ",
+                           fsTooltip= Nothing,
+                           fsName= Nothing,
+                           fsAttrs=[("class","form-control")]} Nothing
+
 racas = do
        entidades <- runDB $ selectList [] [Asc RacaNome] 
        optionsPairs $ fmap (\ent -> (racaApelido $ entityVal ent, entityKey ent)) entidades
            
 formUser :: Form Users
 formUser = renderDivs $ Users <$>
-           areq textField FieldSettings{fsId=Just "hident1",
+            areq textField FieldSettings{fsId=Just "hident1",
                                fsLabel="Nome: ",
                                fsTooltip= Nothing,
                                fsName= Nothing,
                                fsAttrs=[("class","form-control"),("placeholder","Nome"),("maxlength","50")]} Nothing <*>
-           areq textField FieldSettings{fsId=Just "hident2",
+            areq textField FieldSettings{fsId=Just "hident2",
                                fsLabel="Username: ",
                                fsTooltip= Nothing,
                                fsName= Nothing,
                                fsAttrs=[("class","form-control"),("placeholder","Username"),("maxlength","50")]} Nothing <*>
-           areq passwordField FieldSettings{fsId=Just "hident3",
+            areq passwordField FieldSettings{fsId=Just "hident3",
                                fsLabel="Senha: ",
                                fsTooltip= Nothing,
                                fsName= Nothing,
@@ -128,56 +144,64 @@ formUser = renderDivs $ Users <$>
 
 formLogin :: Form (Text,Text)
 formLogin = renderDivs $ (,) <$>
-           areq textField FieldSettings{fsId=Just "hident1",
-                               fsLabel="Username: ",
-                               fsTooltip= Nothing,
-                               fsName= Nothing,
-                               fsAttrs=[("class","form-control"),("placeholder","Username"),("maxlength","50")]} Nothing <*>
-           areq passwordField FieldSettings{fsId=Just "hident2",
-                               fsLabel="Senha: ",
-                               fsTooltip= Nothing,
-                               fsName= Nothing,
-                               fsAttrs=[("class","form-control"),("placeholder","Senha"),("maxlength","50")]} Nothing 
+            areq textField FieldSettings{fsId=Just "hident1",
+                           fsLabel="Username: ",
+                           fsTooltip= Nothing,
+                           fsName= Nothing,
+                           fsAttrs=[("class","form-control"),("placeholder","Username"),("maxlength","50")]} Nothing <*>
+            areq passwordField FieldSettings{fsId=Just "hident2",
+                           fsLabel="Senha: ",
+                           fsTooltip= Nothing,
+                           fsName= Nothing,
+                           fsAttrs=[("class","form-control"),("placeholder","Senha"),("maxlength","50")]} Nothing 
            
 getRacaR :: Handler Html
 getRacaR = do
            (widget, enctype) <- generateFormPost formRaca
            defaultLayout $ do 
            toWidget [cassius|
-              label
-                  color:red;
+                label
+                    color:red;
            |]
            [whamlet|
-                 <form .form-horizontal method=post enctype=#{enctype} action=@{RacaR}>
-                     ^{widget}
-                     <input type="submit" value="Cadastrar Raca">
+                <form .form-horizontal method=post enctype=#{enctype} action=@{RacaR}>
+                    ^{widget}
+                    <input type="submit" value="Cadastrar Raca">
            |]
 
 getAnimalR :: Handler Html
 getAnimalR = do
-           (widget, enctype) <- generateFormPost formAnimal
-           defaultLayout $ do 
-           toWidget [cassius|
-              label
-                  color:blue;
-           |]
-           [whamlet|
-                 <form .form-horizontal method=post enctype=#{enctype} action=@{AnimalR}>
-                     ^{widget}
-                     <input type="submit" value="Cadastrar Animal">
-           |]
+        (widget, enctype) <- generateFormPost formAnimal
+        defaultLayout $ do
+            addStylesheet $ StaticR css_components_css
+            addStylesheet $ StaticR css_background_css
+            addStylesheet $ StaticR css_bootstrap_min_css
+            addScript $ StaticR js_jquery_2_2_4_min_js
+            addScript $ StaticR js_bootstrap_js
+            toWidget $ $(whamletFile "templates/animal.hamlet")
            
 getPerfilR :: UsersId -> Handler Html
 getPerfilR uid = do
-      user <- runDB $ get404 uid
-      defaultLayout $ do
-          toWidget $ $(luciusFile "templates/perfil.lucius")
-          $(whamletFile "templates/perfil.hamlet")
+        user <- runDB $ get404 uid
+        defaultLayout $ do
+            toWidget $ $(luciusFile "templates/perfil.lucius")
+            $(whamletFile "templates/perfil.hamlet")
+          
+getInicioR :: Handler Html
+getInicioR = do
+--        user <- runDB $ selectFirst [UsersId ==. maybeAuthID] []
+        defaultLayout $ do
+            addStylesheet $ StaticR css_components_css
+            addStylesheet $ StaticR css_background_css
+            addStylesheet $ StaticR css_bootstrap_min_css
+            addScript $ StaticR js_jquery_2_2_4_min_js
+            addScript $ StaticR js_bootstrap_js
+            toWidget $ $(whamletFile "templates/inicio.hamlet")
 
 getUsuarioR :: Handler Html
 getUsuarioR = do
-           (widget, enctype) <- generateFormPost formUser
-           defaultLayout $ do
+            (widget, enctype) <- generateFormPost formUser
+            defaultLayout $ do
                 addStylesheet $ StaticR css_components_css
                 addStylesheet $ StaticR css_background_css
                 addStylesheet $ StaticR css_bootstrap_min_css
@@ -187,17 +211,14 @@ getUsuarioR = do
            
 getListarAnimalR :: Handler Html
 getListarAnimalR = do
-             listaAnm <- runDB $ selectList [] [Asc AnimalsNome]
-             defaultLayout $ [whamlet|
-                 <h1> Animais cadastrados:
-                 $forall Entity pid animals <- listaAnm
-                     <a href=@{ChecarAnimalR pid}> #{animalsNome animals} 
-                     <form method=post action=@{ChecarAnimalR pid}> 
-                         <input type="submit" value="Deletar Animal"><br>
-             |] >> toWidget [lucius|
-                form  { display:inline; }
-                input { background-color: #ecc; border:0;}
-             |]
+            listaAnm <- runDB $ selectList [] [Asc AnimalsNome]
+            defaultLayout $ do
+                addStylesheet $ StaticR css_components_css
+                addStylesheet $ StaticR css_background_css
+                addStylesheet $ StaticR css_bootstrap_min_css
+                addScript $ StaticR js_jquery_2_2_4_min_js
+                addScript $ StaticR js_bootstrap_js
+                toWidget $ $(whamletFile "templates/listaAnimal.hamlet")
 
 getListarUsuarioR :: Handler Html
 getListarUsuarioR = do
@@ -288,7 +309,7 @@ postLoginR = do
                    user <- runDB $ selectFirst [UsersLogin ==. login, UsersSenha ==. senha] []
                    case user of
                        Nothing -> redirect LoginR
-                       Just (Entity pid u) -> setSession "_ID" (pack $ show $ fromSqlKey pid) >> redirect (PerfilR pid)
+                       Just (Entity pid u) -> setSession "_ID" (pack $ show $ fromSqlKey pid) >> redirect InicioR
 
 getChecarAnimalR :: AnimalsId -> Handler Html
 getChecarAnimalR pid = do
