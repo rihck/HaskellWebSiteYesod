@@ -280,7 +280,7 @@ getServicoR = do
             addStylesheet $ StaticR css_bootstrap_min_css
             addScript $ StaticR js_jquery_2_2_4_min_js
             addScript $ StaticR js_bootstrap_js
-            toWidget $ $(whamletFile "templates/cadastrar.hamlet") 
+            toWidget $ $(whamletFile "templates/servico.hamlet") 
             --TODO: Criar Stilo para Tela de Cadastro de Servico (Copiado o do Cadastro pra Teste)
            
 getListarAnimalR :: Handler Html
@@ -302,8 +302,14 @@ getListarAnimalR = do
 
 getListarUsuarioR :: Handler Html
 getListarUsuarioR = do
-             listaUsr <- runDB $ selectList [] [Asc UsersNome]
-             defaultLayout $ [whamlet|
+            listaUsr <- runDB $ selectList [] [Asc UsersNome]
+            addStylesheet $ StaticR css_components_css
+            addStylesheet $ StaticR css_background_admin_css
+            addStylesheet $ StaticR css_bootstrap_min_css
+            addScript $ StaticR js_jquery_2_2_4_min_js
+            addScript $ StaticR js_bootstrap_js
+            toWidget $ $(whamletFile "templates/admin.hamlet")
+{-             defaultLayout $ [whamlet|
                  <h1> Usuarios Cadastrados no Sistema:
                  $forall Entity pid users <- listaUsr
                      <a href=@{PerfilR pid}> #{usersNome users} 
@@ -312,7 +318,7 @@ getListarUsuarioR = do
              |] >> toWidget [lucius|
                 form  { display:inline; }
                 input { background-color: #ecc; border:0;}
-             |]
+             |]-}
            
 postRacaR :: Handler Html
 postRacaR = do
