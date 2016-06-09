@@ -33,7 +33,6 @@ Raca
 Servico
     nome Text sqltype=varchar(50)
     descricao Text sqltype=varchar
-    valor Double
     deriving Show
 |]
 staticFiles "static"
@@ -167,8 +166,7 @@ formLogin = renderDivs $ (,) <$>
 formServico :: Form Servico
 formServico = renderDivs $ Servico <$>
               areq textField "Nome Serviço: " Nothing <*>
-              areq textField "Descricão Servico: " Nothing <*>
-              areq doubleField "Valor Serviço: " Nothing
+              areq textField "Descricão Servico: " Nothing
            
 getRacaR :: Handler Html
 getRacaR = do
@@ -204,14 +202,19 @@ getPerfilR uid = do
           
 getInicioR :: Handler Html
 getInicioR = do
---        user <- runDB $ selectFirst [UsersId ==. entityKey (Users $ lookupSession "_ID" _)] []
-        defaultLayout $ do
-            addStylesheet $ StaticR css_components_css
-            addStylesheet $ StaticR css_background_css
-            addStylesheet $ StaticR css_bootstrap_min_css
-            addScript $ StaticR js_jquery_2_2_4_min_js
-            addScript $ StaticR js_bootstrap_js
-            toWidget $ $(whamletFile "templates/inicio.hamlet")
+        key <- lookupSession "_ID"
+        case key of
+            Just x -> do 
+                let campo = toSqlKey $ read $ unpack x
+                user <- runDB $ selectFirst [UsersId ==. campo] []
+                defaultLayout $ do
+                    addStylesheet $ StaticR css_components_css
+                    addStylesheet $ StaticR css_background_css
+                    addStylesheet $ StaticR css_bootstrap_min_css
+                    addScript $ StaticR js_jquery_2_2_4_min_js
+                    addScript $ StaticR js_bootstrap_js
+                    toWidget $ $(whamletFile "templates/inicio.hamlet")
+            Nothing -> redirect HomeR
 
 getUsuarioR :: Handler Html
 getUsuarioR = do
