@@ -33,25 +33,28 @@ Raca
 Servico
     nome Text sqltype=varchar(50)
     descricao Text sqltype=varchar
+    valor Double
     deriving Show
 |]
 staticFiles "static"
 mkYesod "Pagina" [parseRoutes|
 / HomeR GET
-/animal/cadastro AnimalR GET POST
 /animal/checar/#AnimalsId ChecarAnimalR GET POST
 /erro ErroR GET
 
 /login LoginR GET POST
-/usuario UsuarioR GET POST
-/perfil/#UsersId PerfilR GET POST
+/usuario/cadastro UsuarioR GET POST
 /admin AdminR GET
 /inicio InicioR GET
 /logout LogoutR GET
 
-/animal/raca RacaR GET POST
-/animal/listar ListarAnimalR GET
-/usuario/listar ListarUsuarioR GET
+/sistema/meuperfil MeuPerfilR GET
+/sistema/animal/cadastro AnimalR GET POST
+/sistema/animal/listar ListarAnimalR GET
+
+/admin/animal/raca/cadastro RacaR GET POST
+/admin/perfil/#UsersId PerfilR GET POST
+/admin/usuario/listar ListarUsuarioR GET
 /static StaticR Static getStatic
 
 /animal/servico ServicoR GET POST
@@ -129,7 +132,7 @@ formAnimal = renderDivs $ Animals <$>
 
 racas = do
        entidades <- runDB $ selectList [] [Asc RacaNome] 
-       optionsPairs $ fmap (\ent -> (racaApelido $ entityVal ent, entityKey ent)) entidades
+       optionsPairs $ fmap (\ent -> (racaNome $ entityVal ent, entityKey ent)) entidades
            
 formUser :: Form Users
 formUser = renderDivs $ Users <$>
@@ -166,7 +169,8 @@ formLogin = renderDivs $ (,) <$>
 formServico :: Form Servico
 formServico = renderDivs $ Servico <$>
               areq textField "Nome Serviço: " Nothing <*>
-              areq textField "Descricão Servico: " Nothing
+              areq textField "Descricão Servico: " Nothing <*>
+              areq doubleField "Valor: " Nothing
            
 getRacaR :: Handler Html
 getRacaR = do
@@ -185,20 +189,46 @@ getRacaR = do
 getAnimalR :: Handler Html
 getAnimalR = do
         (widget, enctype) <- generateFormPost formAnimal
-        defaultLayout $ do
-            addStylesheet $ StaticR css_components_css
-            addStylesheet $ StaticR css_background_css
-            addStylesheet $ StaticR css_bootstrap_min_css
-            addScript $ StaticR js_jquery_2_2_4_min_js
-            addScript $ StaticR js_bootstrap_js
-            toWidget $ $(whamletFile "templates/animal.hamlet")
+        key <- lookupSession "_ID"
+        case key of
+            Just x -> do 
+                let campo = toSqlKey $ read $ unpack x
+                user <- runDB $ selectFirst [UsersId ==. campo] []
+                defaultLayout $ do
+                    addStylesheet $ StaticR css_components_css
+                    addStylesheet $ StaticR css_background_css
+                    addStylesheet $ StaticR css_bootstrap_min_css
+                    addScript $ StaticR js_jquery_2_2_4_min_js
+                    addScript $ StaticR js_bootstrap_js
+                    toWidget $ $(whamletFile "templates/animal.hamlet")
+            Nothing -> redirect HomeR
            
 getPerfilR :: UsersId -> Handler Html
 getPerfilR uid = do
         user <- runDB $ get404 uid
         defaultLayout $ do
-            toWidget $ $(luciusFile "templates/perfil.lucius")
-            $(whamletFile "templates/perfil.hamlet")
+                    addStylesheet $ StaticR css_components_css
+                    addStylesheet $ StaticR css_background_css
+                    addStylesheet $ StaticR css_bootstrap_min_css
+                    addScript $ StaticR js_jquery_2_2_4_min_js
+                    addScript $ StaticR js_bootstrap_js
+                    toWidget $ $(whamletFile "templates/perfil.hamlet")
+                    
+getMeuPerfilR :: UsersId -> Handler Html
+getMeuPerfilR uid = do
+        key <- lookupSession "_ID"
+        case key of
+            Just x -> do 
+                let campo = toSqlKey $ read $ unpack x
+                user <- runDB $ selectFirst [UsersId ==. campo] []
+                defaultLayout $ do
+                    addStylesheet $ StaticR css_components_css
+                    addStylesheet $ StaticR css_background_css
+                    addStylesheet $ StaticR css_bootstrap_min_css
+                    addScript $ StaticR js_jquery_2_2_4_min_js
+                    addScript $ StaticR js_bootstrap_js
+                    toWidget $ $(whamletFile "templates/meuperfil.hamlet")
+            Nothing -> redirect HomeR
           
 getInicioR :: Handler Html
 getInicioR = do
@@ -242,13 +272,19 @@ getServicoR = do
 getListarAnimalR :: Handler Html
 getListarAnimalR = do
             listaAnm <- runDB $ selectList [] [Asc AnimalsNome]
-            defaultLayout $ do
-                addStylesheet $ StaticR css_components_css
-                addStylesheet $ StaticR css_background_css
-                addStylesheet $ StaticR css_bootstrap_min_css
-                addScript $ StaticR js_jquery_2_2_4_min_js
-                addScript $ StaticR js_bootstrap_js
-                toWidget $ $(whamletFile "templates/listaAnimal.hamlet")
+            key <- lookupSession "_ID"
+            case key of
+                Just x -> do 
+                    let campo = toSqlKey $ read $ unpack x
+                    user <- runDB $ selectFirst [UsersId ==. campo] []
+                    defaultLayout $ do
+                        addStylesheet $ StaticR css_components_css
+                        addStylesheet $ StaticR css_background_css
+                        addStylesheet $ StaticR css_bootstrap_min_css
+                        addScript $ StaticR js_jquery_2_2_4_min_js
+                        addScript $ StaticR js_bootstrap_js
+                        toWidget $ $(whamletFile "templates/listaAnimal.hamlet")
+                Nothing -> redirect HomeR
 
 getListarUsuarioR :: Handler Html
 getListarUsuarioR = do
