@@ -303,22 +303,13 @@ getListarAnimalR = do
 getListarUsuarioR :: Handler Html
 getListarUsuarioR = do
             listaUsr <- runDB $ selectList [] [Asc UsersNome]
-            addStylesheet $ StaticR css_components_css
-            addStylesheet $ StaticR css_background_admin_css
-            addStylesheet $ StaticR css_bootstrap_min_css
-            addScript $ StaticR js_jquery_2_2_4_min_js
-            addScript $ StaticR js_bootstrap_js
-            toWidget $ $(whamletFile "templates/admin.hamlet")
-{-             defaultLayout $ [whamlet|
-                 <h1> Usuarios Cadastrados no Sistema:
-                 $forall Entity pid users <- listaUsr
-                     <a href=@{PerfilR pid}> #{usersNome users} 
-                     <form method=post action=@{PerfilR pid}> 
-                         <input type="submit" value="Deletar User"><br>
-             |] >> toWidget [lucius|
-                form  { display:inline; }
-                input { background-color: #ecc; border:0;}
-             |]-}
+            defaultLayout $ do
+                addStylesheet $ StaticR css_components_css
+                addStylesheet $ StaticR css_background_admin_css
+                addStylesheet $ StaticR css_bootstrap_min_css
+                addScript $ StaticR js_jquery_2_2_4_min_js
+                addScript $ StaticR js_bootstrap_js
+                toWidget $ $(whamletFile "templates/listaUsuario.hamlet")
            
 postRacaR :: Handler Html
 postRacaR = do

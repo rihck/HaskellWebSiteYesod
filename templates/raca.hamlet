@@ -21,8 +21,11 @@
                 Usuarios
             <li role="separator" class="divider">
             <li>
-              <a href=@{ListarAnimalR}>
-                Pets
+              <a href=@{RacaR}>
+                Racas
+            <li>
+              <a href=@{ServicoR}>
+                Serviços
       
       <form class="navbar-form navbar-left" role="search">
         <div class="form-group">
@@ -42,7 +45,7 @@
                 <hr>
         <form method=post enctype=#{enctype} action=@{RacaR}>
             ^{widget}
-            <button type="submit" class="btn btn-default">Cadastrar
+            <button type="submit" class="btn btn-default" style="margin-top:30px;">Cadastrar
             
 <div style="width:100%;background-color:#000;margin-top:200px;padding:50px 0;">
     <div class="container" style="color:#fff;">
