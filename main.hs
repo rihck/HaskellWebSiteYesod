@@ -17,7 +17,6 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Animals 
    nome Text sqltype=varchar(10)
    idade Int
---   user UsersId
    racaid RacaId
    deriving Show
 Users 
@@ -35,6 +34,9 @@ Servico
     descricao Text sqltype=varchar
     valor Double
     deriving Show
+--Servico_Realizado
+--   AnimalsId
+--   ServicoId
 |]
 staticFiles "static"
 mkYesod "Pagina" [parseRoutes|
@@ -69,6 +71,8 @@ instance Yesod Pagina where
     isAuthorized UsuarioR _ = return Authorized
     isAuthorized AdminR _ = isAdmin
     isAuthorized ListarUsuarioR _ = isAdmin
+    isAuthorized (PerfilR _) _ = isAdmin
+    isAuthorized RacaR _ = isAdmin
     isAuthorized _ _ = isUser
 
 isUser = do
@@ -168,14 +172,34 @@ formLogin = renderDivs $ (,) <$>
 --TODO: Adicionar/Criar Layout Tela de Cadastro de Serviços
 formServico :: Form Servico
 formServico = renderDivs $ Servico <$>
-              areq textField "Nome Serviço: " Nothing <*>
-              areq textField "Descricão Servico: " Nothing <*>
-              areq doubleField "Valor: " Nothing
+            areq textField FieldSettings{fsId=Just "hident1",
+                           fsLabel="Nome: ",
+                           fsTooltip= Nothing,
+                           fsName= Nothing,
+                           fsAttrs=[("class","form-control"),("placeholder","Nome"),("maxlength","50")]} Nothing <*>
+            areq textField FieldSettings{fsId=Just "hident2",
+                               fsLabel="Descrição: ",
+                               fsTooltip= Nothing,
+                               fsName= Nothing,
+                               fsAttrs=[("class","form-control"),("placeholder","Descrição"),("maxlength","50")]} Nothing <*>
+            areq doubleField FieldSettings{fsId=Just "hident3",
+                           fsLabel="Valor: ",
+                           fsTooltip= Nothing,
+                           fsName= Nothing,
+                           fsAttrs=[("class","form-control"),("placeholder","Valor")]} Nothing
+                               
            
 getRacaR :: Handler Html
 getRacaR = do
            (widget, enctype) <- generateFormPost formRaca
-           defaultLayout $ do 
+           defaultLayout $ do
+                    addStylesheet $ StaticR css_components_css
+                    addStylesheet $ StaticR css_background_css
+                    addStylesheet $ StaticR css_bootstrap_min_css
+                    addScript $ StaticR js_jquery_2_2_4_min_js
+                    addScript $ StaticR js_bootstrap_js
+                    toWidget $ $(whamletFile "templates/admin.hamlet")
+{-           defaultLayout $ do 
            toWidget [cassius|
                 label
                     color:red;
@@ -184,7 +208,7 @@ getRacaR = do
                 <form .form-horizontal method=post enctype=#{enctype} action=@{RacaR}>
                     ^{widget}
                     <input type="submit" value="Cadastrar Raca">
-           |]
+           |]-}
 
 getAnimalR :: Handler Html
 getAnimalR = do
@@ -214,8 +238,8 @@ getPerfilR uid = do
                     addScript $ StaticR js_bootstrap_js
                     toWidget $ $(whamletFile "templates/perfil.hamlet")
                     
-getMeuPerfilR :: UsersId -> Handler Html
-getMeuPerfilR uid = do
+getMeuPerfilR :: Handler Html
+getMeuPerfilR = do
         key <- lookupSession "_ID"
         case key of
             Just x -> do 
@@ -332,7 +356,7 @@ postUsuarioR :: Handler Html
 postUsuarioR = do
            ((result, _), _) <- runFormPost formUser
            case result of 
-               FormSuccess user -> (runDB $ insert user) >>= \piid -> redirect (PerfilR piid)
+               FormSuccess user -> (runDB $ insert user) >>= \piid -> redirect LoginR
                _ -> redirect ErroR
                
 postServicoR :: Handler Html
@@ -351,13 +375,10 @@ getHomeR =  defaultLayout $ do
                 addScript $ StaticR js_bootstrap_js
                 toWidget $ $(whamletFile "templates/index.hamlet")
            
-addStyle :: Widget
-addStyle = addStylesheetRemote "http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css"
-
 getAdminR :: Handler Html
 getAdminR = defaultLayout $ do
                 addStylesheet $ StaticR css_components_css
-                addStylesheet $ StaticR css_background_css
+                addStylesheet $ StaticR css_background_admin_css
                 addStylesheet $ StaticR css_bootstrap_min_css
                 addScript $ StaticR js_jquery_2_2_4_min_js
                 addScript $ StaticR js_bootstrap_js
@@ -388,11 +409,13 @@ postLoginR = do
 getChecarAnimalR :: AnimalsId -> Handler Html
 getChecarAnimalR pid = do
     animal <- runDB $ get404 pid
-    defaultLayout  [whamlet|
-    <font size="10">Perfil do Pet</font><br>
-        <p><b> Nome do Pet:</b>  #{animalsNome animal}  
-        <p><b> Idade do Pet:</b> #{show $ animalsIdade animal} Anos
-    |]
+    defaultLayout $ do
+                addStylesheet $ StaticR css_components_css
+                addStylesheet $ StaticR css_background_admin_css
+                addStylesheet $ StaticR css_bootstrap_min_css
+                addScript $ StaticR js_jquery_2_2_4_min_js
+                addScript $ StaticR js_bootstrap_js
+                toWidget $ $(whamletFile "templates/admin.hamlet")
 
 getErroR :: Handler Html
 getErroR = defaultLayout [whamlet|

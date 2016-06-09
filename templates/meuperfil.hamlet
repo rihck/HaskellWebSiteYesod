@@ -47,31 +47,13 @@
 
 <div style="width:100%;background-color:#fff;margin-top:200px;padding:50px 0;height:500px;border:2px solid #ddd;">
     <div class="container">
-        <h1> Animais cadastrados:
-        <div class="center" style="width:40px;color:#444;">
-                <hr>
-        <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Id
-                        <th>Nome
-                        <th>Idade
-                        <th>Deletar
-                <tbody>
-            $forall Entity pid animals <- listaAnm
-                    <tr>
-                        <td>
-                            #{toPathPiece pid}
-                        <td>
-                            <a href=@{ChecarAnimalR pid} style="color:#000;margin-left:15px;">
-                                #{animalsNome animals}
-                        <td>
-                            #{animalsIdade animals}
-                        <td>
-                            <form method=post action=@{ChecarAnimalR pid}>
-                                <button class="btn btn-default" type="submit">
-                                    Deletar
-                
+        $maybe Entity uid values <- user
+            <h2 class="center" style="margin-top:50px;">#{usersLogin values}
+                <div class="center" style="width:40px;">
+                    <hr>
+                <p>Seu nome é #{usersNome values}.
+                <p>Obrigado por usar o PET STOP!
+            
 <div style="width:100%;background-color:#e22;margin-top:200px;padding:50px 0;">
     <div class="container" style="color:#fff;">
         <div class="col-md-6">

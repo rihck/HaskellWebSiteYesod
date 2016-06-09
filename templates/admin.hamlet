@@ -31,8 +31,9 @@
         <button type="submit" class="btn btn-default">Pesquisar
       
       <ul class="nav navbar-nav navbar-right">
-        <a href=@{LogoutR}>
-            Logout 
+        <li>
+          <a href=@{LogoutR}>
+              Logout 
 
 <div style="width:100%;background-color:#fff;margin-top:200px;padding:50px 0;height:500px;border:2px solid #ddd;">
     <div class="container">
