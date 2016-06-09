@@ -29,6 +29,12 @@ Raca
    nome Text sqltype=varchar(50)
    apelido Text sqltype=varchar(10)
    deriving Show
+   
+Servico
+    nome Text sqltype=varchar(50)
+    descricao Text sqltype=varchar
+    valor Double
+    deriving Show
 |]
 staticFiles "static"
 mkYesod "Pagina" [parseRoutes|
@@ -48,6 +54,8 @@ mkYesod "Pagina" [parseRoutes|
 /animal/listar ListarAnimalR GET
 /usuario/listar ListarUsuarioR GET
 /static StaticR Static getStatic
+
+/animal/servico ServicoR GET POST
 |]
 
 instance Yesod Pagina where
@@ -154,6 +162,13 @@ formLogin = renderDivs $ (,) <$>
                            fsTooltip= Nothing,
                            fsName= Nothing,
                            fsAttrs=[("class","form-control"),("placeholder","Senha"),("maxlength","50")]} Nothing 
+
+--TODO: Adicionar/Criar Layout Tela de Cadastro de Serviços
+formServico :: Form Servico
+formServico = renderDivs $ Servico <$>
+              areq textField "Nome Serviço: " Nothing <*>
+              areq textField "Descricão Servico: " Nothing <*>
+              areq doubleField "Valor Serviço: " Nothing
            
 getRacaR :: Handler Html
 getRacaR = do
@@ -189,7 +204,7 @@ getPerfilR uid = do
           
 getInicioR :: Handler Html
 getInicioR = do
---        user <- runDB $ selectFirst [UsersId ==. maybeAuthID] []
+--        user <- runDB $ selectFirst [UsersId ==. entityKey (Users $ lookupSession "_ID" _)] []
         defaultLayout $ do
             addStylesheet $ StaticR css_components_css
             addStylesheet $ StaticR css_background_css
@@ -208,6 +223,18 @@ getUsuarioR = do
                 addScript $ StaticR js_jquery_2_2_4_min_js
                 addScript $ StaticR js_bootstrap_js
                 toWidget $ $(whamletFile "templates/cadastrar.hamlet")
+                
+getServicoR :: Handler Html
+getServicoR = do
+        (widget, enctype) <- generateFormPost formServico
+        defaultLayout $ do
+            addStylesheet $ StaticR css_components_css
+            addStylesheet $ StaticR css_background_css
+            addStylesheet $ StaticR css_bootstrap_min_css
+            addScript $ StaticR js_jquery_2_2_4_min_js
+            addScript $ StaticR js_bootstrap_js
+            toWidget $ $(whamletFile "templates/cadastrar.hamlet") 
+            --TODO: Criar Stilo para Tela de Cadastro de Servico (Copiado o do Cadastro pra Teste)
            
 getListarAnimalR :: Handler Html
 getListarAnimalR = do
@@ -269,7 +296,13 @@ postUsuarioR = do
                FormSuccess user -> (runDB $ insert user) >>= \piid -> redirect (PerfilR piid)
                _ -> redirect ErroR
                
---Home do Site -> Adicionar CSS e Rotas
+postServicoR :: Handler Html
+postServicoR = do
+           ((result, _), _) <- runFormPost formServico
+           case result of 
+               FormSuccess anim -> (runDB $ insert anim) >>= \piid -> redirect InicioR
+               _ -> redirect ErroR
+               
 getHomeR :: Handler Html
 getHomeR =  defaultLayout $ do
                 addStylesheet $ StaticR css_components_css
@@ -283,11 +316,13 @@ addStyle :: Widget
 addStyle = addStylesheetRemote "http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css"
 
 getAdminR :: Handler Html
-getAdminR = defaultLayout [whamlet|
-    <b><h1><font size="11"> Bem vindo ao Painel Administrativo</font></h1></b>
-    <ul>
-        <li> <a href=@{ListarUsuarioR}> Gerenciar Usuarios do Sistema  
-|]
+getAdminR = defaultLayout $ do
+                addStylesheet $ StaticR css_components_css
+                addStylesheet $ StaticR css_background_css
+                addStylesheet $ StaticR css_bootstrap_min_css
+                addScript $ StaticR js_jquery_2_2_4_min_js
+                addScript $ StaticR js_bootstrap_js
+                toWidget $ $(whamletFile "templates/admin.hamlet")
 
 getLoginR :: Handler Html
 getLoginR = do
