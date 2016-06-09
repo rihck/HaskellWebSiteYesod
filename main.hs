@@ -194,21 +194,11 @@ getRacaR = do
            (widget, enctype) <- generateFormPost formRaca
            defaultLayout $ do
                     addStylesheet $ StaticR css_components_css
-                    addStylesheet $ StaticR css_background_css
+                    addStylesheet $ StaticR css_background_admin_css
                     addStylesheet $ StaticR css_bootstrap_min_css
                     addScript $ StaticR js_jquery_2_2_4_min_js
                     addScript $ StaticR js_bootstrap_js
-                    toWidget $ $(whamletFile "templates/admin.hamlet")
-{-           defaultLayout $ do 
-           toWidget [cassius|
-                label
-                    color:red;
-           |]
-           [whamlet|
-                <form .form-horizontal method=post enctype=#{enctype} action=@{RacaR}>
-                    ^{widget}
-                    <input type="submit" value="Cadastrar Raca">
-           |]-}
+                    toWidget $ $(whamletFile "templates/raca.hamlet")
 
 getAnimalR :: Handler Html
 getAnimalR = do
@@ -286,7 +276,7 @@ getServicoR = do
         (widget, enctype) <- generateFormPost formServico
         defaultLayout $ do
             addStylesheet $ StaticR css_components_css
-            addStylesheet $ StaticR css_background_css
+            addStylesheet $ StaticR css_background_admin_css
             addStylesheet $ StaticR css_bootstrap_min_css
             addScript $ StaticR js_jquery_2_2_4_min_js
             addScript $ StaticR js_bootstrap_js

@@ -21,11 +21,8 @@
                 Usuarios
             <li role="separator" class="divider">
             <li>
-              <a href=@{RacaR}>
-                Racas
-            <li>
-              <a href=@{ServicoR}>
-                Serviços
+              <a href=@{ListarAnimalR}>
+                Pets
       
       <form class="navbar-form navbar-left" role="search">
         <div class="form-group">
@@ -39,11 +36,13 @@
               Logout 
 
 <div style="width:100%;background-color:#fff;margin-top:200px;padding:50px 0;height:500px;border:2px solid #ddd;">
-    <div class="container">
-        <h1>Bem vindo ao Painel Administrativo!
+    <div class="container">    
+        <h1>Cadastrar Raça
         <div class="center" style="width:40px;">
                 <hr>
-        <p style="font-size:2em;">Não dê bobeira! Sempre estamos de olho!
+        <form method=post enctype=#{enctype} action=@{RacaR}>
+            ^{widget}
+            <button type="submit" class="btn btn-default">Cadastrar
             
 <div style="width:100%;background-color:#000;margin-top:200px;padding:50px 0;">
     <div class="container" style="color:#fff;">
